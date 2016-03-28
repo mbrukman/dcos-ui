@@ -19,7 +19,12 @@ const METHODS_TO_BIND = [
   'handleUninstallClose',
   'handleUninstallFinish',
   'handleUpgradeClick',
-  'handleUpgradeClose'
+  'handleUpgradeClose',
+  'handleOpenConfirm',
+  'handlePackageSelection',
+  'handleUninstallCancel',
+  'handleUninstallPackage',
+  'handleUpgradeCancel'
 ];
 
 class PackagesTable extends React.Component {
@@ -27,9 +32,12 @@ class PackagesTable extends React.Component {
     super();
 
     this.state = {
+      pendingUpgradeRequest: false,
+      packageUninstallError: null,
+      pendingUninstallRequest: false,
+      pendingUpgradeRequest: false,
       packageToUpgrade: null,
-      packageToUninstall: null,
-      pendingUpgradeRequest: false
+      packageToUninstall: null
     };
 
     METHODS_TO_BIND.forEach((method) => {
@@ -41,7 +49,12 @@ class PackagesTable extends React.Component {
     this.setState({packageToUninstall});
   }
 
-  handleUninstallClose() {
+  handlePackageSelection(packageToUpgrade) {
+    console.log(packageToUpgrade);
+    this.setState({packageToUpgrade});
+  }
+
+  handleUninstallCancel() {
     this.setState({packageToUninstall: null});
   }
 
@@ -55,6 +68,10 @@ class PackagesTable extends React.Component {
 
   handleUpgradeClose() {
     this.setState({packageToUpgrade: null});
+  }
+
+  handleUpgradeCancel() {
+    this.setState({packageToUninstall: null});
   }
 
   getClassName(prop, sortBy, row) {
@@ -129,6 +146,33 @@ class PackagesTable extends React.Component {
     );
   }
 
+  getUpgradeCell(prop, cosmosPackage) {
+    return (
+      <div className="button-collection flush flex-align-right">
+        {this.getUninstallButton(cosmosPackage)}
+        <PackageUpgradeOverview cosmosPackage={cosmosPackage}
+          onAnswerClick={this.handlePackageSelection}
+          onUpgradeClick={this.handlePackageSelection}
+          onViewProgressClick={this.handlePackageSelection} />
+      </div>
+    );
+  }
+
+  getErrorMessage() {
+    let {packageUninstallError} = this.state;
+    if (!packageUninstallError) {
+      return null;
+    }
+
+    let error = CosmosMessages[packageUninstallError.type] ||
+      CosmosMessages.default;
+    return (
+      <p className="text-error-state">
+       {error.getMessage(packageUninstallError.name)}
+      </p>
+    );
+  }
+
   getUninstallButton(cosmosPackage) {
     if (cosmosPackage.isUpgrading()) {
       return null;
@@ -143,21 +187,20 @@ class PackagesTable extends React.Component {
     );
   }
 
-  getUpgradeCell(prop, cosmosPackage) {
-    return (
-      <div className="button-collection flush flex-align-right">
-        {this.getUninstallButton(cosmosPackage)}
-        <PackageUpgradeOverview cosmosPackage={cosmosPackage}
-          onUpgradeClick={this.handleUpgradeClick} />
-      </div>
-    );
-  }
-
   render() {
+    let {state} = this;
     let {packageToUpgrade, packageToUninstall} = this.state;
 
     let isUpgradeModalOpen = !!packageToUpgrade;
     let isUninstallModalOpen = !!packageToUninstall;
+
+    let packageName;
+    let packageVersion;
+
+    if (isUpgradeModalOpen) {
+      packageName = selectedPackage.getName();
+      packageVersion = selectedPackage.getCurrentVersion();
+    }
 
     return (
       <div>
@@ -169,13 +212,29 @@ class PackagesTable extends React.Component {
           sortBy={{prop: 'appId', order: 'desc'}} />
         <UpgradePackageModal
           cosmosPackage={packageToUpgrade}
-          onClose={this.handleUpgradeClose}
-          open={isUpgradeModalOpen} />
+          onClose={this.handleUpgradeCancel}
+          open={isUpgradeModalOpen}
+          packageName={packageName}
+          packageVersion={packageVersion} />
         <UninstallPackageModal
           cosmosPackage={packageToUninstall}
           handleUninstallFinish={this.handleUninstallFinish}
           onClose={this.handleUninstallClose}
           open={isUninstallModalOpen} />
+        <Confirm
+          closeByBackdropClick={true}
+          disabled={state.pendingUninstallRequest}
+          footerContainerClass="container container-pod container-pod-short
+            container-pod-super-short-top container-pod-fluid flush-top
+            flush-bottom"
+          open={isUninstallModalOpen}
+          onClose={this.handleUninstallCancel}
+          leftButtonCallback={this.handleUninstallCancel}
+          rightButtonCallback={this.handleUninstallPackage}
+          rightButtonClassName="button button-danger"
+          rightButtonText="Uninstall">
+          {this.getUninstallModalContent()}
+        </Confirm>
       </div>
     );
   }

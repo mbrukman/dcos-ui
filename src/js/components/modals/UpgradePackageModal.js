@@ -1,28 +1,26 @@
+import classNames from 'classnames';
 import {Dropdown, Modal} from 'reactjs-components';
 import React from 'react';
 
-const METHODS_TO_BIND = ['handleUpgradeStart', 'handleVersionSelection'];
+import SegmentedProgressBar from '../charts/SegmentedProgressBar';
+import PackageUpgradeConfirmation from '../PackageUpgradeConfirmation';
+import PackageUpgradeDetail from '../PackageUpgradeDetail';
+
+const METHODS_TO_BIND = [];
 
 class UpgradePackageModal extends React.Component {
   constructor() {
     super(...arguments);
-
-    this.state = {
-      upgradeVersion: null
-    };
 
     METHODS_TO_BIND.forEach((method) => {
       this[method] = this[method].bind(this);
     });
   }
 
-  handleUpgradeStart() {
-    let upgradeVersion = this.state.upgradeVersion;
-    if (!upgradeVersion) {
-      upgradeVersion = this.getLatestVersion(this.props.cosmosPackage);
+  getModalContent(cosmosPackage) {
+    if (cosmosPackage.isUpgrading()) {
+      return <PackageUpgradeDetail cosmosPackage={cosmosPackage} />;
     }
-
-    console.log(`starting upgrade to ${upgradeVersion}`);
   }
 
   handleVersionSelection(version) {
@@ -93,24 +91,30 @@ class UpgradePackageModal extends React.Component {
 
   render() {
     let {props} = this;
+    let {cosmosPackage} = props;
+    let modalContent;
 
-    if (!props.open) {
-      return null;
+    if (cosmosPackage != null) {
+      modalContent = this.getModalContent(cosmosPackage);
     }
+
+    let modalClasses = classNames('modal', {
+      'modal-narrow': cosmosPackage && (!cosmosPackage.isUpgrading()
+        || cosmosPackage.hasError())
+    });
 
     return (
       <Modal
         bodyClass="modal-content allow-overflow"
-        footer={this.getModalFooter()}
+        dynamicHeight={false}
         innerBodyClass="flush-top flush-bottom"
         maxHeightPercentage={1}
-        modalClass="modal modal-narrow"
+        modalClass={modalClasses}
         onClose={props.onClose}
         open={props.open}
         showCloseButton={false}
-        showFooter={true}
         useGemini={false}>
-        {this.getModalContents()}
+        {modalContent}
       </Modal>
     );
   }
