@@ -28,7 +28,13 @@ class UniversePackage extends Item {
   }
 
   getActiveDecisionPoint() {
-    return this._activeDecisionPoint;
+    return {
+      canRollBack: true,
+      configurationCheck: true,
+      index: this._activeDecisionPoint,
+      name: `broker-${this._activeDecisionPoint}`,
+      upgradeSHA: 'f4f1ds92-024c35d-04s'
+    };
   }
 
   getAppId() {
@@ -49,8 +55,19 @@ class UniversePackage extends Item {
     return this.getActiveBlock() + 10;
   }
 
+  getCurrentPhase() {
+    return {
+      label: 'Pre-flight',
+      status: 'Configuring Update'
+    };
+  }
+
+  getCurrentVersion() {
+    return this.get('packageDefinition').version;
+  }
+
   getDecisionPointCount() {
-    return this.getActiveDecisionPoint() + 10;
+    return this.getActiveDecisionPoint().index + 10;
   }
 
   getDecisionPointIndices() {
@@ -63,24 +80,34 @@ class UniversePackage extends Item {
     return indices;
   }
 
-  getCurrentPhase() {
-    return {
-      label: 'Pre-flight',
-      status: 'Configuring Update'
-    };
+  getIcons() {
+    return ServiceUtil.getServiceImages(
+      this.get('images') ||
+      Util.findNestedPropertyInObject(
+        this.get('resourceDefinition'), 'images'
+      ) ||
+      Util.findNestedPropertyInObject(this.get('resource'), 'images')
+    );
+  }
+
+  getName() {
+    return this.get('packageDefinition').name;
   }
 
   getPhases() {
     return [
       {
+        active: true,
         label: 'Pre-flight',
         progress: 100,
         upgradeState: 'ongoing'
       }, {
+        active: false,
         label: 'Upgrade',
         progress: 0,
         upgradeState: 'upcoming'
       }, {
+        active: false,
         label: 'Post-flight',
         progress: 0,
         upgradeState: 'upcoming'
@@ -145,13 +172,13 @@ class UniversePackage extends Item {
     );
   }
 
+  isPromoted() {
+    return this.get('promoted');
+  }
+
   // TODO (John): Use actual data.
   getUpgradeVersions() {
     return ['0.1.0', '0.1.5', '0.2.0', '0.2.5'];
-  }
-
-  getCurrentVersion() {
-    return this.get('packageDefinition').version;
   }
 
   getSelectedUpgradeVersion() {
@@ -161,6 +188,14 @@ class UniversePackage extends Item {
 
   getUpgradeHealth() {
     return 'Healthy';
+  }
+
+  getUpgradeSHA() {
+    return 'f4f1ds92-024c35d-04s';
+  }
+
+  getVersion() {
+    return this.get('packageDefinition').version;
   }
 
   hasError() {
