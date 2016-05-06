@@ -16,14 +16,10 @@ const METHODS_TO_BIND = [
   'getUninstallButton',
   'getUpgradeCell',
   'handleUninstallClick',
-  'handleUninstallClose',
+  'handleUninstallCancel',
   'handleUninstallFinish',
   'handleUpgradeClick',
-  'handleUpgradeClose',
-  'handleOpenConfirm',
   'handlePackageSelection',
-  'handleUninstallCancel',
-  'handleUninstallPackage',
   'handleUpgradeCancel'
 ];
 
@@ -66,12 +62,8 @@ class PackagesTable extends React.Component {
     this.setState({packageToUpgrade});
   }
 
-  handleUpgradeClose() {
-    this.setState({packageToUpgrade: null});
-  }
-
   handleUpgradeCancel() {
-    this.setState({packageToUninstall: null});
+    this.setState({packageToUpgrade: null});
   }
 
   getClassName(prop, sortBy, row) {
@@ -188,7 +180,6 @@ class PackagesTable extends React.Component {
   }
 
   render() {
-    let {state} = this;
     let {packageToUpgrade, packageToUninstall} = this.state;
 
     let isUpgradeModalOpen = !!packageToUpgrade;
@@ -198,8 +189,8 @@ class PackagesTable extends React.Component {
     let packageVersion;
 
     if (isUpgradeModalOpen) {
-      packageName = selectedPackage.getName();
-      packageVersion = selectedPackage.getCurrentVersion();
+      packageName = packageToUpgrade.getName();
+      packageVersion = packageToUpgrade.getCurrentVersion();
     }
 
     return (
@@ -215,26 +206,13 @@ class PackagesTable extends React.Component {
           onClose={this.handleUpgradeCancel}
           open={isUpgradeModalOpen}
           packageName={packageName}
-          packageVersion={packageVersion} />
+          packageVersion={packageVersion}
+          requireConfirmation={true} />
         <UninstallPackageModal
           cosmosPackage={packageToUninstall}
           handleUninstallFinish={this.handleUninstallFinish}
-          onClose={this.handleUninstallClose}
-          open={isUninstallModalOpen} />
-        <Confirm
-          closeByBackdropClick={true}
-          disabled={state.pendingUninstallRequest}
-          footerContainerClass="container container-pod container-pod-short
-            container-pod-super-short-top container-pod-fluid flush-top
-            flush-bottom"
-          open={isUninstallModalOpen}
           onClose={this.handleUninstallCancel}
-          leftButtonCallback={this.handleUninstallCancel}
-          rightButtonCallback={this.handleUninstallPackage}
-          rightButtonClassName="button button-danger"
-          rightButtonText="Uninstall">
-          {this.getUninstallModalContent()}
-        </Confirm>
+          open={isUninstallModalOpen} />
       </div>
     );
   }

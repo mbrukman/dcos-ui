@@ -20,11 +20,11 @@ class PackageUpgradeDetail extends React.Component {
     });
   }
 
-  handleDecisionConfirm(cosmosPackage) {
+  handleDecisionConfirm() {
     console.log('confirm');
   }
 
-  handleDecisionRollback(cosmosPackage) {
+  handleDecisionRollback() {
     console.log('rollback');
   }
 
@@ -55,7 +55,7 @@ class PackageUpgradeDetail extends React.Component {
           <span>
             {`${phaseLabel} requires updating ${cosmosPackage.getName()} `}
             configuration to <a href="#">{decisionPoint.upgradeSHA}</a>
-            {` Please press continue to begin.`}
+            {' Please press continue to begin.'}
           </span>
         );
       }
@@ -177,10 +177,6 @@ class PackageUpgradeDetail extends React.Component {
         <a href="#">Restart</a> <a href="#">Force Complete</a>
       </span>
     );
-  }
-
-  getUpgradeDecisionPoint(cosmosPackage) {
-
   }
 
   getUpgradeDetails(cosmosPackage) {

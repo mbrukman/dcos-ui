@@ -8,6 +8,7 @@ import Framework from '../structs/Framework';
 import InternalStorageMixin from '../mixins/InternalStorageMixin';
 import Service from '../structs/Service';
 import UpdateConfigModal from './modals/UpdateConfigModal';
+import UpgradePackageModal from './UpgradePackageModal';
 
 const METHODS_TO_BIND = [
   'handleEditConfigClick',
@@ -31,6 +32,11 @@ class ServiceActions extends mixin(InternalStorageMixin, StoreMixin) {
       events: [
         'descriptionError',
         'descriptionSuccess'
+      ],
+      name: 'servicePlan',
+      events: [
+        'fetchError',
+        'fetchSuccess'
       ]
     }];
 
@@ -77,7 +83,7 @@ class ServiceActions extends mixin(InternalStorageMixin, StoreMixin) {
   render() {
     let {service} = this.props;
     let {editConfigModalOpen} = this.state;
-    let {servicePackage} = this.internalStorage_get();
+    let {servicePackage, hasUpdatePlan} = this.internalStorage_get();
 
     let editButotnClasses = classNames('button button-inverse button-stroke', {
       'disabled': servicePackage == null
@@ -92,6 +98,22 @@ class ServiceActions extends mixin(InternalStorageMixin, StoreMixin) {
           servicePackage={servicePackage} />
       </a>
     ];
+
+    if (hasUpdatePlan) {
+      serviceActions.push(
+        <a className={editButotnClasses} key="edit-config"
+        onClick={this.handleEditConfigClick}>
+        Edit
+        <UpgradePackageModal
+          cosmosPackage={packageToUpgrade}
+          key="upgrade-package-modal"
+          onClose={this.handleUpgradeCancel}
+          open={isUpgradeModalOpen}
+          packageName={packageName}
+          packageVersion={packageVersion} />
+      </a>
+      );
+    }
 
     if (service.getWebURL && service.getWebURL()) {
       serviceActions.unshift(

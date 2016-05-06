@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import {Dropdown, Modal} from 'reactjs-components';
 import React from 'react';
 
-import SegmentedProgressBar from '../charts/SegmentedProgressBar';
 import PackageUpgradeConfirmation from '../PackageUpgradeConfirmation';
 import PackageUpgradeDetail from '../PackageUpgradeDetail';
 
@@ -21,6 +20,12 @@ class UpgradePackageModal extends React.Component {
     if (cosmosPackage.isUpgrading()) {
       return <PackageUpgradeDetail cosmosPackage={cosmosPackage} />;
     }
+
+    if (this.props.requireConfirmation) {
+      return <PackageUpgradeConfirmation cosmosPackage={cosmosPackage} />;
+    }
+
+    return 'No upgrade information available.';
   }
 
   handleVersionSelection(version) {
@@ -122,12 +127,14 @@ class UpgradePackageModal extends React.Component {
 
 UpgradePackageModal.defaultProps = {
   onClose: function () {},
-  open: false
+  open: false,
+  requireConfirmation: false
 };
 
 UpgradePackageModal.propTypes = {
   onClose: React.PropTypes.func,
-  open: React.PropTypes.bool
+  open: React.PropTypes.bool,
+  requireConfirmation: React.PropTypes.bool
 };
 
 module.exports = UpgradePackageModal;

@@ -45,6 +45,15 @@ class UpdateConfigModal extends mixin(InternalStorageMixin, StoreMixin) {
     });
   }
 
+  onCosmosPackagesStoreInstallError(error) {
+    this.internalStorage_update({
+      updateError: error,
+      pendingRequest: false,
+      updateSuccess: false
+    });
+    this.forceUpdate();
+  }
+
   onCosmosPackagesStoreInstallSuccess() {
     this.internalStorage_update({
       updateError: null,
