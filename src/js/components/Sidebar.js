@@ -19,7 +19,7 @@ var SidebarActions = require('../events/SidebarActions');
 let defaultMenuItems = [
   'dashboard',
   'services-page',
-  'jobs-page',
+  'jobs',
   'nodes-list',
   'universe',
   'system'
