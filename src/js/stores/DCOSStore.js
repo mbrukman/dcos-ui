@@ -115,6 +115,8 @@ class DCOSStore extends EventEmitter {
 
         return Object.assign({affectedServices: services}, deployment);
       });
+
+    this.emit(DCOS_CHANGE);
   }
 
   onMarathonGroupsChange() {
