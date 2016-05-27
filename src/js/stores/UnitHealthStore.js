@@ -148,7 +148,7 @@ class UnitHealthStore extends BaseStore {
   }
 
   getNode(nodeID) {
-    return new Node(this.get('nodesByID')[nodeID] || []);
+    return new Node(this.get('nodesByID')[nodeID] || {});
   }
 
   getDownloadURL() {
