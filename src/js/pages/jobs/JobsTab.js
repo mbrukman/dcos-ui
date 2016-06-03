@@ -31,7 +31,7 @@ class JobsTab extends mixin(StoreMixin) {
       );
     }
 
-    if (this.props.params.taskID) {
+    if (this.props.params.jobID) {
       return (
         <RouteHandler />
       );
