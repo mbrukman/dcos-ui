@@ -1,4 +1,5 @@
 import Item from './Item';
+import JobActiveRunList from './JobActiveRunList';
 
 module.exports = class Job extends Item {
   constructor() {
@@ -10,6 +11,14 @@ module.exports = class Job extends Item {
     }
   }
 
+  getCommand() {
+    return this.get('run').cmd;
+  }
+
+  getDescription() {
+    return this.get('description');
+  }
+
   getId() {
     return this.get('id') || '/';
   }
@@ -18,4 +27,19 @@ module.exports = class Job extends Item {
     return this.getId().split('/').pop();
   }
 
+  getActiveRuns() {
+    return new JobActiveRunList({items: this.get('activeRuns')});
+  }
+
+  getLongestRunningActiveRun() {
+    let sortedRuns = this.getActiveRuns().getItems().sort(function (a, b) {
+      return a.getDateCreated().valueOf() -  b.getDateCreated().valueOf();
+    })
+
+    return sortedRuns[0];
+  }
+
+  getSchedule() {
+    return this.get('schedule');
+  }
 };
